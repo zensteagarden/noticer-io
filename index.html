@@ -4,26 +4,237 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Noticer</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@800&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet" />
+  <meta name="description" content="Noticer verifies outcomes. PACT records the work." />
+  <meta name="theme-color" content="#1a1714" />
+  <link rel="canonical" href="https://noticer.io/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet" />
   <style>
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:28px 20px;font-family:DM Sans,system-ui,sans-serif;color:#eef3ff;background:linear-gradient(180deg,#09111f,#101a2d)}
-    main{width:min(520px,100%)}h1{font-family:Outfit,sans-serif;font-size:clamp(2.6rem,9vw,4.2rem);line-height:.95;margin:0 0 16px}
-    p{color:#d5deee;font-size:1.2rem}input,button{font:inherit;width:100%;min-height:56px;padding:14px 16px;border-radius:12px;margin-top:8px}
-    input{border:1px solid #3b4a66;background:#0e1628;color:#fff}button{border:0;background:#2f6df6;color:#fff;font-weight:800;cursor:pointer}
-    .kicker{letter-spacing:.18em;text-transform:uppercase;font-size:13px;color:#9fb0c9}
+    :root {
+      --paper: #f4efe6;
+      --ink: #1a1714;
+      --soft: #5c564e;
+      --rule: #d8d0c4;
+      --clip: #fbf8f2;
+      --field: #141311;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--paper); color: var(--ink);
+      font-family: "IBM Plex Sans", system-ui, sans-serif; line-height: 1.5; }
+    a { color: inherit; }
+    button, [role="button"] { cursor: pointer; font: inherit; }
+    .skip { position: absolute; left: -999px; }
+    .skip:focus { left: 8px; top: 8px; background: var(--ink); color: var(--paper); padding: 8px 12px; z-index: 9; }
+    header { border-bottom: 1px solid var(--rule); }
+    .bar { max-width: 52rem; margin: 0 auto; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .mark { letter-spacing: .18em; text-transform: uppercase; font-size: .8rem; font-weight: 600; text-decoration: none; }
+    nav { display: flex; gap: .25rem; flex-wrap: wrap; }
+    nav a, nav button.linkish { min-height: 44px; display: inline-flex; align-items: center; padding: 0 .75rem; background: none; border: 0; color: var(--soft); text-decoration: none; }
+    nav a:hover, nav button.linkish:hover { color: var(--ink); }
+    main { max-width: 52rem; margin: 0 auto; padding: 2.5rem 1.25rem 5rem; }
+    h1 { font-family: Newsreader, Georgia, serif; font-weight: 500; font-size: clamp(2.4rem, 6vw, 3.4rem); letter-spacing: -.03em; line-height: 1.08; margin: 1.5rem 0 0; }
+    .lede { color: var(--soft); max-width: 36rem; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 1.25rem; background: var(--ink); color: var(--paper); border: 0; text-decoration: none; font-weight: 500; }
+    .btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
+    .note { color: var(--soft); font-size: .92rem; }
+    .list { list-style: none; padding: 0; margin: 2rem 0; }
+    .list li { border-top: 1px solid var(--ink); padding: 1.5rem 0; }
+    .pick { width: 100%; text-align: left; min-height: 56px; padding: 0 1rem; background: transparent; border: 1px solid var(--ink); display: flex; justify-content: space-between; align-items: center; margin-top: .75rem; }
+    .pick[disabled] { border-color: var(--rule); color: var(--soft); }
+    article.paper { background: var(--clip); padding: 2rem 1.5rem; }
+    .kicker { letter-spacing: .16em; text-transform: uppercase; font-size: .72rem; color: var(--soft); }
+    .verdict { font-family: Newsreader, Georgia, serif; font-size: clamp(2.2rem, 7vw, 4rem); letter-spacing: -.03em; margin: .75rem 0; }
+    dl { margin: 1.5rem 0 0; }
+    dt { letter-spacing: .14em; text-transform: uppercase; font-size: .7rem; color: var(--soft); margin-top: 1rem; }
+    dd { margin: .2rem 0 0; }
+    footer { max-width: 52rem; margin: 0 auto; padding: 0 1.25rem 3rem; color: var(--soft); font-size: .92rem; }
+    .row { display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 1.5rem; }
+    .hidden { display: none; }
+    :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
   </style>
 </head>
 <body>
-  <main>
-    <p class="kicker">Noticer</p>
-    <h1>Leave your email.</h1>
-    <p>We will follow up. No audit runs on this page.</p>
-    <form action="https://formsubmit.co/noticer@dalycreation.com" method="POST">
-      <input type="hidden" name="_subject" value="Noticer email" />
-      <input type="hidden" name="_captcha" value="false" />
-      <input id="email" name="email" type="email" required autocomplete="email" placeholder="you@company.com" />
-      <button type="submit">Send</button>
-    </form>
-  </main>
+  <a class="skip" href="#main">Skip to content</a>
+  <header>
+    <div class="bar">
+      <a class="mark" href="#/">Noticer</a>
+      <nav aria-label="Primary">
+        <a href="#/">Your work</a>
+        <a href="#/call">Make a call</a>
+        <a href="#/connect">Connect</a>
+        <a href="#/records">Records</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main"></main>
+  <footer>
+    <p>PACT records the work. Noticer verifies the outcome.</p>
+    <p>This is the Noticer engine. It is not a website discrepancy audit.</p>
+  </footer>
+  <script>
+    const REQUIRED = "Verify that the workflow claim arrived and the required downstream state actually exists.";
+    const CLOSING = {
+      PROVED: "The evidence established the required outcome.",
+      DISPROVED: "The evidence contradicted the required outcome.",
+      INCONCLUSIVE: "The available evidence could not establish the required outcome."
+    };
+    const FIXTURES = [
+      { subject: "ESTABLISHED", control: "HEALTHY", evidence: "Required downstream state present." },
+      { subject: "NOT_ESTABLISHED", control: "HEALTHY", evidence: "Required downstream state absent." },
+      { subject: "PROOF_STOPPED_HERE", control: "UNAVAILABLE", evidence: "Observation could not complete." }
+    ];
+    const KEY = "noticer-engine-v1";
+    const $ = (sel) => document.querySelector(sel);
+    const main = () => $("#main");
+    function load() {
+      try { return JSON.parse(localStorage.getItem(KEY) || "null") || { calls: 0, runs: [] }; }
+      catch { return { calls: 0, runs: [] }; }
+    }
+    function save(state) { localStorage.setItem(KEY, JSON.stringify(state)); }
+    function derive(f) {
+      if (f.control === "UNAVAILABLE" || f.subject === "PROOF_STOPPED_HERE") return "INCONCLUSIVE";
+      if (f.subject === "ESTABLISHED") return "PROVED";
+      return "DISPROVED";
+    }
+    function hash() { return location.hash.replace(/^#/, "") || "/"; }
+    function go(path) { location.hash = path; render(); }
+    function trackables(state) {
+      const map = new Map();
+      for (const run of state.runs) {
+        const key = "workflow_completed";
+        if (!map.has(key)) map.set(key, { key, name: "Workflow completed successfully", required: REQUIRED, runs: [] });
+        map.get(key).runs.push(run);
+      }
+      return [...map.values()];
+    }
+    function render() {
+      const state = load();
+      const path = hash();
+      const root = main();
+      let html = "";
+      if (path === "/call") {
+        html = `<h1>Make a call</h1>
+          <p class="lede">Choose a system. Selection only.</p>
+          <ul class="list">
+            <li><button class="pick" data-go="/call/review">Workflows <span>Demo / Test environment</span></button></li>
+            <li><button class="pick" disabled>Zapier <span>Available to connect</span></button></li>
+            <li><button class="pick" disabled>GitHub <span>Available to connect</span></button></li>
+          </ul>
+          <p class="note">Discovery is not authorization.</p>`;
+      } else if (path === "/call/review") {
+        html = `<h1>Exact scope</h1>
+          <p class="lede">Workflow completed successfully. ${REQUIRED}</p>
+          <p class="note">Demo lab. This does not operate your Zapier account.</p>
+          <div class="row"><button class="btn" data-act="record">Record test call</button></div>`;
+      } else if (path.startsWith("/work/")) {
+        const id = path.slice(6);
+        const run = state.runs.find(r => r.id === id);
+        if (!run) html = `<h1>Work Receipt</h1><p>Not found.</p>`;
+        else html = `<article class="paper">
+          <p class="kicker">Work Receipt</p>
+          <h1>Work recorded</h1>
+          <p>This is a record of the work. It is not independent verification.</p>
+          <dl>
+            <dt>Required outcome</dt><dd>${REQUIRED}</dd>
+            <dt>Claim</dt><dd>Workflow completed successfully</dd>
+            <dt>Recorded</dt><dd>${new Date(run.at).toLocaleString()}</dd>
+            <dt>Receipt</dt><dd>${run.id}</dd>
+          </dl>
+          <div class="row">${run.clip
+            ? `<a class="btn" href="#/clip/${run.clip.id}">View Clip</a>`
+            : `<button class="btn" data-act="verify" data-id="${run.id}">Verify outcome</button>`}</div>
+        </article>`;
+      } else if (path.startsWith("/clip/")) {
+        const id = path.slice(6);
+        const run = state.runs.find(r => r.clip && r.clip.id === id);
+        if (!run) html = `<h1>Verification Clip</h1><p>Not found.</p>`;
+        else {
+          const c = run.clip;
+          html = `<article class="paper">
+            <p class="kicker">Verification Clip</p>
+            <p class="verdict">${c.verdict}</p>
+            <p>${CLOSING[c.verdict]}</p>
+            <dl>
+              <dt>Required outcome</dt><dd>${REQUIRED}</dd>
+              <dt>Claim</dt><dd>Workflow reported completed</dd>
+              <dt>Subject</dt><dd>${c.subject}</dd>
+              <dt>Control</dt><dd>${c.control}</dd>
+              <dt>Evidence</dt><dd>${c.evidence}</dd>
+              <dt>Verdict</dt><dd>${c.verdict}</dd>
+              <dt>Limits</dt><dd>Demo lab fixture. Success message is not evidence.</dd>
+              <dt>Checked</dt><dd>${new Date(c.at).toLocaleString()}</dd>
+            </dl>
+            <p class="note" style="margin-top:1.5rem">Related <a href="#/work/${run.id}">Work Receipt</a>.</p>
+          </article>`;
+        }
+      } else if (path === "/connect") {
+        html = `<h1>Connect</h1>
+          <p class="lede">Accounts are infrastructure. Discovery is not authorization.</p>
+          <ul class="list">
+            <li><strong>Workflows</strong><br><span class="note">Demo / Test environment. Demo lab. This does not operate your Zapier account.</span></li>
+            <li><strong>Zapier</strong><br><span class="note">Available to connect. Not connected.</span></li>
+            <li><strong>GitHub</strong><br><span class="note">Available to connect. Not connected.</span></li>
+          </ul>`;
+      } else if (path === "/records") {
+        const items = [...state.runs].reverse();
+        html = `<h1>Records</h1>
+          <p class="lede">Work Receipts and Verification Clips. Not analytics.</p>
+          ${items.length === 0 ? `<p>No records yet.</p>` : `<ul class="list">${items.map(r => `<li>
+            <a href="#/work/${r.id}">Work Receipt ${r.id}</a>
+            ${r.clip ? ` · <a href="#/clip/${r.clip.id}">Clip ${r.clip.verdict}</a>` : " · No Clip yet"}
+          </li>`).join("")}</ul>`}`;
+      } else {
+        const ts = trackables(state);
+        html = `<p class="kicker">Engine</p>
+          <h1>Your work</h1>
+          <p class="lede">Software tells you what it did. Noticer checks what became true.</p>
+          ${ts.length === 0 ? `<p>No runs yet. Record a test call in the demo lab.</p>
+            <p class="note">Demo lab. This does not operate your Zapier account.</p>
+            <div class="row"><a class="btn" href="#/call">Make a call</a></div>`
+          : ts.map(t => `<section style="margin-top:2.5rem;border-top:1px solid var(--ink);padding-top:1.5rem">
+              <h2 style="font-family:Newsreader,serif;font-size:2rem;margin:0">${t.name}</h2>
+              <p class="note">${t.required}</p>
+              <p class="note">Evidence source: Workflows · Demo / Test environment</p>
+              <ol class="list">${[...t.runs].reverse().map(r => `<li>
+                <div>${new Date(r.at).toLocaleString()}</div>
+                <div>Workflow completed</div>
+                <div>${r.clip ? `<span class="verdict" style="font-size:1.6rem">${r.clip.verdict}</span> <a href="#/clip/${r.clip.id}">View Clip</a>` : "No Clip yet"}</div>
+                <div><a href="#/work/${r.id}">Work Receipt</a></div>
+              </li>`).join("")}</ol>
+            </section>`).join("")}`;
+      }
+      root.innerHTML = html;
+      root.querySelectorAll("[data-go]").forEach(el => el.onclick = () => go(el.dataset.go));
+      root.querySelectorAll("[data-act=record]").forEach(el => el.onclick = () => {
+        const s = load();
+        const id = "WR-" + String(s.calls + 1).padStart(4, "0");
+        s.calls += 1;
+        s.runs.push({ id, at: new Date().toISOString(), clip: null, n: s.calls });
+        save(s);
+        go("/work/" + id);
+      });
+      root.querySelectorAll("[data-act=verify]").forEach(el => {
+        el.onclick = () => {
+          const s = load();
+          const run = s.runs.find(r => r.id === el.dataset.id);
+          if (!run || run.clip) return;
+          const f = FIXTURES[(run.n - 1) % 3];
+          run.clip = {
+            id: "CL-" + run.id.slice(3),
+            at: new Date().toISOString(),
+            verdict: derive(f),
+            subject: f.subject,
+            control: f.control,
+            evidence: f.evidence
+          };
+          save(s);
+          go("/clip/" + run.clip.id);
+        };
+      });
+    }
+    window.addEventListener("hashchange", render);
+    render();
+  </script>
 </body>
 </html>

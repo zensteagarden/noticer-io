@@ -1,2 +1,5 @@
 # noticer-io
-Noticer Discrepancy Audit landing page
+
+Noticer engine home. PACT records the work. Noticer verifies the outcome.
+
+This is not a discrepancy-audit marketing site.
